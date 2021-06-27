@@ -15,7 +15,7 @@ syno_user="USER"
 syno_pwd="PWD"
 syno_url="IP_SYNO:PORT_SYNO" # eg 192.168.1.100:5000
 domoticz_url="IP_DOMOTICZ:PORT_DOMOTICZ" # eg 127.0.0.1:8080
-vAuth=2
+vAuth=4
 vCam=8
 vList=1
 
@@ -26,7 +26,7 @@ authPath=$(echo "$curlResult" | jq -r '.["data"]["SYNO.API.Auth"]["path"]')
 surveillancePath=$(echo "$curlResult" | jq -r '.["data"]["SYNO.SurveillanceStation.Camera"]["path"]')
 
 # Do login
-curlResult=$(curl -s "http://${syno_url}/webapi/${authPath}?api=SYNO.API.Auth&method=Login&version=${vAuth}&account=${syno_user}&passwd=${syno_pwd}&session=SurveillanceStation&format=sid")
+curlResult=$(curl -s "http://${syno_url}/webapi/${authPath}?api=SYNO.API.Auth&method=login&version=${vAuth}&account=${syno_user}&passwd=${syno_pwd}&session=SurveillanceStation&format=sid")
 if [[ $(echo "$curlResult" | jq -r '.["success"]') == 'false' ]]; then 
 	echo "Error on login"
 	exit 0
@@ -40,7 +40,7 @@ if [[ $1 == 'enable' ]]; then
 	# Enable trough DSM API
 	curlResult=$(curl -s "http://${syno_url}/webapi/${surveillancePath}?api=SYNO.SurveillanceStation.Camera&method=Enable&version=${vCam}&cameraIds=${2}&_sid=${SID}")
 	if [[ $(echo "$curlResult" | jq -r '.["success"]') == 'false' ]]; then 
-		curl -s "http://${syno_url}/webapi/${authPath}?api=SYNO.API.Auth&method=Logout&version=${vAuth}&_sid=${SID}" > /dev/null 2>&1
+		curl -s "http://${syno_url}/webapi/${authPath}?api=SYNO.API.Auth&method=logout&version=${vAuth}&_sid=${SID}" > /dev/null 2>&1
 		echo "Error on enabling"
 		exit 0
 	fi
@@ -50,7 +50,7 @@ elif [[ $1 == 'disable' ]]; then
 	# Enable trough DSM API
 	curlResult=$(curl -s "http://${syno_url}/webapi/${surveillancePath}?api=SYNO.SurveillanceStation.Camera&method=Disable&version=${vCam}&cameraIds=${2}&_sid=${SID}")
 	if [[ $(echo "$curlResult" | jq -r '.["success"]') == 'false' ]]; then 
-		curl -s "http://${syno_url}/webapi/${authPath}?api=SYNO.API.Auth&method=Logout&version=${vAuth}&_sid=${SID}" > /dev/null 2>&1
+		curl -s "http://${syno_url}/webapi/${authPath}?api=SYNO.API.Auth&method=logout&version=${vAuth}&_sid=${SID}" > /dev/null 2>&1
 		echo "Error on disabling"
 		exit 0
 	fi
@@ -71,4 +71,4 @@ elif [[ $1 == 'check' ]]; then
 fi
 
 # Do logoff
-curl -s "http://${syno_url}/webapi/${authPath}?api=SYNO.API.Auth&method=Logout&version=${vAuth}&_sid=${SID}" > /dev/null 2>&1
+curl -s "http://${syno_url}/webapi/${authPath}?api=SYNO.API.Auth&method=logout&version=${vAuth}&_sid=${SID}" > /dev/null 2>&1
